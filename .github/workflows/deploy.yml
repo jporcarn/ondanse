@@ -1,0 +1,24 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Azure Static Web Apps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build frontend
+        run: pnpm --dir packages/frontend run build
+      - name: Deploy placeholder
+        run: echo "Add Azure Static Web Apps deployment action here when the app is configured."

@@ -1,0 +1,25 @@
+{
+  "name": "ondanse",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/backend",
+    "packages/frontend"
+  ],
+  "scripts": {
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "build": "pnpm -r build",
+    "version": "npx standard-version",
+    "prepare": "npx husky install",
+    "dev:backend": "pnpm --dir packages/backend dev",
+    "dev:frontend": "pnpm --dir packages/frontend dev",
+    "dev": "pnpm -r --parallel --filter @ondanse/backend --filter @ondanse/frontend run dev"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.0.0",
+    "@commitlint/config-conventional": "^17.0.0",
+    "husky": "^9.0.0",
+    "standard-version": "^9.0.0"
+  }
+}
