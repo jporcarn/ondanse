@@ -60,6 +60,9 @@ Every PR **MUST** include:
 5. ✅ Assign `jporcarn` as reviewer and code owner approval
 6. ✅ Wait for approval before merging (or inform user to merge after review)
 7. ✅ Provide merge command for user if automation not available
+8. ✅ Minimize tool usage and terminal calls to reduce Copilot consumption
+9. ✅ Prefer concise edits and only touch files required for the task
+10. ✅ Avoid repeated or unnecessary validation steps when not required
 
 **Tools to use:**
 - `mcp_gitkraken_cli_git_*` for branch operations
