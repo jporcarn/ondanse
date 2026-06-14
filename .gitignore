@@ -31,6 +31,7 @@ pnpm-debug.log*
 # terraform
 .terraform/
 .terraform.lock.hcl
+.terraform/providers/
 *.tfstate
 *.tfstate.*
 *.zip
