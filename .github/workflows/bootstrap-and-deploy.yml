@@ -1,0 +1,43 @@
+name: Bootstrap Terraform Backend and Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  bootstrap-and-plan:
+    name: Bootstrap Terraform Backend and Plan
+    runs-on: ubuntu-latest
+    env:
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      - name: Install Azure CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl apt-transport-https lsb-release gpg
+          curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/msft.gpg > /dev/null
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/msft.gpg] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
+          sudo apt-get update
+          sudo apt-get install -y azure-cli
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.15.6
+      - name: Bootstrap backend resources
+        run: |
+          chmod +x infra/bootstrap-terraform-backend.sh
+          infra/bootstrap-terraform-backend.sh "$ARM_SUBSCRIPTION_ID"
+      - name: Terraform init
+        working-directory: ./infra
+        run: terraform init
+      - name: Terraform plan
+        working-directory: ./infra
+        run: terraform plan -var-file="terraform.tfvars"
