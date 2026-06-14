@@ -1,0 +1,14 @@
+# Code owners for the Ondanse repository
+# Add the team or users who should review changes for each area.
+
+# Default ownership for all files
+* @jporcarn
+
+# Backend package
+/packages/backend/ @jporcarn
+
+# Frontend package
+/packages/frontend/ @jporcarn
+
+# GitHub workflow configuration
+/.github/workflows/ @jporcarn
