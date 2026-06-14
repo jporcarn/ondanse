@@ -28,5 +28,12 @@ pnpm-debug.log*
 .DS_Store
 *.code-workspace
 
+# terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.zip
+
 # misc
 *.local
