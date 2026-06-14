@@ -12,8 +12,10 @@ Ondanse is a global PWA with a TypeScript frontend and TypeScript backend. The a
 - UI library: Tailwind CSS or Chakra UI for responsive design
 - Internationalization: i18next or React Intl for multi-language UI and user preference selection, with English as the default language when festival data is available in multiple languages
 - Support English, French, and the festival's local language when available.
-- Hosting: Azure Static Web Apps or Azure Blob Storage + CDN
+- Hosting: Azure Static Web Apps (preferred for the Vite PWA) or Azure Blob Storage + CDN
 - Current choice: Vite for a lightweight, fast PWA starter with a separate backend. Vite is ideal for early-stage development, quick iteration, and a static-first delivery model.
+- Azure infra: Azure Static Web App for the frontend, Azure Linux Web App with Node runtime for the backend, Azure Cosmos DB with MongoDB API for data, and Azure Storage backend for Terraform state.
+- The architecture avoids containers and containerized solutions in favor of Azure native managed services.
 - Migration path: if the app later needs full-stack rendering, advanced routing, or richer server-side capabilities, migrate to Next.js. The migration is manageable if the frontend is componentized and API boundaries are clean, but it requires dedicated effort for routing, data fetching, and build configuration.
 
 ## Backend

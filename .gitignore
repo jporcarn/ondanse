@@ -26,6 +26,7 @@ pnpm-debug.log*
 # editor and OS files
 .vscode/
 .DS_Store
+*.code-workspace
 
 # misc
 *.local
