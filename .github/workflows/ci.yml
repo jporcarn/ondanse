@@ -25,6 +25,10 @@ jobs:
         with:
           node-version: 22
           cache: 'pnpm'
+      - name: Enable Corepack and install pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
       - name: Install dependencies
         run: pnpm install
       - name: Run lint
@@ -41,6 +45,10 @@ jobs:
         with:
           node-version: 22
           cache: 'pnpm'
+      - name: Enable Corepack and install pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
       - name: Install dependencies
         run: pnpm install
       - name: Build backend
