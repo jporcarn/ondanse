@@ -53,7 +53,7 @@ resource "azurerm_linux_web_app" "backend" {
 resource "azurerm_static_web_app" "frontend" {
   name                = "${var.project_name}-web"
   resource_group_name = azurerm_resource_group.main.name
-  location            = "eastus"
+  location            = "westeurope"
   sku_size            = "Free"
   sku_tier            = "Free"
 
@@ -97,6 +97,11 @@ resource "azurerm_cosmosdb_mongo_collection" "festivals" {
   resource_group_name = azurerm_resource_group.main.name
   account_name        = azurerm_cosmosdb_account.main.name
   database_name       = azurerm_cosmosdb_mongo_database.ondanse.name
+
+  index {
+    keys   = ["_id"]
+    unique = true
+  }
 }
 
 resource "azurerm_log_analytics_workspace" "main" {
