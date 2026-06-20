@@ -14,6 +14,18 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
     steps:
       - uses: actions/checkout@v4
+      - name: Validate Azure credentials are set
+        run: |
+          missing=0
+          for var in ARM_CLIENT_ID ARM_CLIENT_SECRET ARM_TENANT_ID ARM_SUBSCRIPTION_ID; do
+            if [ -z "${!var}" ]; then
+              echo "::error::Required secret $var is empty. Set it under Settings > Secrets and variables > Actions."
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
       - name: Login to Azure
         run: |
           az login --service-principal \
@@ -21,14 +33,7 @@ jobs:
             --password "$ARM_CLIENT_SECRET" \
             --tenant "$ARM_TENANT_ID"
           az account set --subscription "$ARM_SUBSCRIPTION_ID"
-      - name: Install Azure CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl apt-transport-https lsb-release gpg
-          curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/msft.gpg > /dev/null
-          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/msft.gpg] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
-          sudo apt-get update
-          sudo apt-get install -y azure-cli
+          echo "Authenticated as subscription: $(az account show --query name -o tsv)"
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v2
         with:
