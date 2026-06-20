@@ -2,6 +2,10 @@
 
 This folder contains Terraform configuration for the Ondanse Azure infrastructure.
 
+> **New here?** Read the step-by-step [Azure Setup Guide](../docs/azure-setup.md) first.
+> It explains the prerequisites, Azure sign-in, backend bootstrap, and GitHub Actions
+> credentials in plain language before the technical detail.
+
 ## Architecture
 
 - Azure Static Web App for frontend hosting

@@ -37,6 +37,13 @@ This repository uses an AI-driven, specs-first workflow.
 
 The frontend runs on `http://localhost:5173` and proxies `/api` to the backend at `http://localhost:3333`.
 
+### Azure infrastructure
+
+To deploy the infrastructure (locally or via GitHub Actions), follow the
+[Azure Setup Guide](docs/azure-setup.md). It walks through prerequisites, Azure
+sign-in, Terraform backend bootstrap, and the GitHub Actions service-principal
+credentials, with plain-language explanations before the technical detail.
+
 ## Monorepo and versioning
 
 - Root `package.json` manages the workspace version.
