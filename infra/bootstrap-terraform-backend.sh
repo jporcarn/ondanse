@@ -10,6 +10,12 @@ LOCATION="westeurope"
 echo "🔐 Setting Azure subscription to '$SUBSCRIPTION_ID'..."
 az account set --subscription "$SUBSCRIPTION_ID"
 
+echo "🧩 Registering required resource providers (idempotent; new subscriptions need this)..."
+for ns in Microsoft.Storage Microsoft.Web Microsoft.DocumentDB Microsoft.KeyVault Microsoft.Insights Microsoft.OperationalInsights; do
+  echo "  - $ns"
+  az provider register --namespace "$ns" --wait
+done
+
 echo "📦 Creating backend resource group '$RESOURCE_GROUP_NAME' in '$LOCATION'..."
 az group create --name "$RESOURCE_GROUP_NAME" --location "$LOCATION" >/dev/null
 

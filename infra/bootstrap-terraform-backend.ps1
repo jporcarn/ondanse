@@ -22,6 +22,24 @@ if ($LASTEXITCODE -ne 0) {
   exit 1
 }
 
+Write-Host "🧩 Registering required resource providers (idempotent; new subscriptions need this)..."
+$providers = @(
+  "Microsoft.Storage",
+  "Microsoft.Web",
+  "Microsoft.DocumentDB",
+  "Microsoft.KeyVault",
+  "Microsoft.Insights",
+  "Microsoft.OperationalInsights"
+)
+foreach ($ns in $providers) {
+  Write-Host "  - $ns"
+  az provider register --namespace $ns --wait
+  if ($LASTEXITCODE -ne 0) {
+    Write-Error "❌ Failed to register resource provider '$ns'."
+    exit 1
+  }
+}
+
 Write-Host "📦 Creating backend resource group '$ResourceGroupName' in '$Location'..."
 az group create --name $ResourceGroupName --location $Location | Out-Null
 if ($LASTEXITCODE -ne 0) {

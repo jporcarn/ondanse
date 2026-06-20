@@ -111,7 +111,16 @@ chmod +x infra/bootstrap-terraform-backend.sh
 infra/bootstrap-terraform-backend.sh "<SUBSCRIPTION_ID>"
 ```
 
-> **Technical note:** the script runs three `az` commands and creates exactly what
+> **Technical note:** before creating anything, the script **registers the required
+> resource providers**. On a brand-new subscription most providers are not registered,
+> and Azure rejects the first resource of that type with a confusing
+> `SubscriptionNotFound` error. The script registers `Microsoft.Storage`,
+> `Microsoft.Web`, `Microsoft.DocumentDB`, `Microsoft.KeyVault`, `Microsoft.Insights`
+> and `Microsoft.OperationalInsights` (idempotent — does nothing if already registered):
+> ```bash
+> az provider register --namespace Microsoft.Storage --wait   # ...and the rest
+> ```
+> It then runs three `az` commands and creates exactly what
 > [`infra/backend.tf`](../infra/backend.tf) expects:
 > - **Resource group** `ondanse-tfstate-rg` in `westeurope` — a folder that groups the
 >   state resources together.
@@ -266,6 +275,7 @@ validate the secrets, log in, bootstrap the backend, and run `terraform init` + 
 | --- | --- | --- |
 | `AADSTS7000215: Invalid client secret provided` | `ARM_CLIENT_SECRET` holds the wrong text (often the Secret **ID**, not the **Value**), or it expired. | Regenerate the secret value (5.4) and update the GitHub secret. |
 | `No subscriptions found for ***` | The service principal logged in but has no role on the subscription. | Assign Contributor (5.2). |
+| `(SubscriptionNotFound) Subscription *** was not found` when creating storage/web/cosmos/etc. (but the resource group was created fine) | The resource provider for that resource type isn't registered on the subscription yet (common on new subscriptions). | Register providers: `az provider register --namespace Microsoft.Storage --wait` (and `Microsoft.Web`, `Microsoft.DocumentDB`, `Microsoft.KeyVault`, `Microsoft.Insights`, `Microsoft.OperationalInsights`). The bootstrap script now does this automatically. |
 | `RequestDisallowedByAzure ... MFA` | *Your* CLI session is not MFA-authenticated. | Re-login with MFA (section 3 technical note). |
 | `Required secret ARM_* is empty` | A GitHub secret is missing/empty. | Add it (5.3). |
 | `terraform init` cannot reach the backend | The state storage doesn't exist yet. | Run the bootstrap script (4.1). |
