@@ -73,6 +73,9 @@ Ondanse is a global Progressive Web App (PWA) that helps dance festival fans dis
 - Mobile-first responsive design.
 - TypeScript for frontend and backend.
 - Cloud-native Azure deployment.
+- Automated Terraform backend bootstrap so local deployment requires only subscription selection.
+- GitHub Actions workflow that can create backend resource group, storage account, and state container before `terraform init`.
+- A repository helper or AI command that prompts for subscription and runs pre-initialization for local Azure deployment.
 - Scalable ingestion and search architecture.
 - Cost-effective architecture optimized for a personal Pay-As-You-Go Azure subscription.
 - Azure budget limit and alerting setup to avoid unexpected charges.
