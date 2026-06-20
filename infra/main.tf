@@ -15,23 +15,6 @@ resource "azurerm_resource_group" "main" {
   tags = local.tags
 }
 
-resource "azurerm_storage_account" "tfstate" {
-  name                            = var.storage_account_name
-  resource_group_name             = azurerm_resource_group.main.name
-  location                        = azurerm_resource_group.main.location
-  account_tier                    = "Standard"
-  account_replication_type        = "LRS"
-  allow_nested_items_to_be_public = false
-
-  tags = local.tags
-}
-
-resource "azurerm_storage_container" "tfstate" {
-  name                  = "tfstate"
-  storage_account_name  = azurerm_storage_account.tfstate.name
-  container_access_type = "private"
-}
-
 resource "azurerm_service_plan" "backend" {
   name                = "${var.project_name}-plan"
   location            = azurerm_resource_group.main.location
@@ -52,11 +35,14 @@ resource "azurerm_linux_web_app" "backend" {
     application_stack {
       node_version = "20-lts"
     }
+
+    # Linux App Service assigns the port via the PORT env var and forwards to it;
+    # the app reads process.env.PORT. Do not set WEBSITES_PORT for built-in Node.
+    app_command_line = "node dist/index.js"
   }
 
   app_settings = {
-    "WEBSITES_PORT" = "3333"
-    "NODE_ENV"      = var.environment
+    "NODE_ENV" = var.environment
   }
 
   https_only = true
@@ -67,7 +53,7 @@ resource "azurerm_linux_web_app" "backend" {
 resource "azurerm_static_web_app" "frontend" {
   name                = "${var.project_name}-web"
   resource_group_name = azurerm_resource_group.main.name
-  location            = "eastus"
+  location            = "westeurope"
   sku_size            = "Free"
   sku_tier            = "Free"
 
@@ -111,12 +97,28 @@ resource "azurerm_cosmosdb_mongo_collection" "festivals" {
   resource_group_name = azurerm_resource_group.main.name
   account_name        = azurerm_cosmosdb_account.main.name
   database_name       = azurerm_cosmosdb_mongo_database.ondanse.name
+
+  index {
+    keys   = ["_id"]
+    unique = true
+  }
+}
+
+resource "azurerm_log_analytics_workspace" "main" {
+  name                = "${var.project_name}-logs"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+
+  tags = local.tags
 }
 
 resource "azurerm_application_insights" "main" {
   name                = "${var.project_name}-ai"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
+  workspace_id        = azurerm_log_analytics_workspace.main.id
   application_type    = "web"
 
   tags = local.tags
