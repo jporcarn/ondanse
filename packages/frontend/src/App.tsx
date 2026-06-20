@@ -13,11 +13,16 @@ interface Festival {
   accommodationFormat: string;
 }
 
+// In production the frontend (Static Web App) calls the backend's public URL,
+// injected at build time via VITE_API_BASE_URL. In local dev it is unset, so the
+// path stays relative and the Vite dev-server proxy forwards /api to localhost.
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
+
 function App() {
   const [festivals, setFestivals] = useState<Festival[]>([]);
 
   useEffect(() => {
-    fetch('/api/festivals')
+    fetch(`${API_BASE}/api/festivals`)
       .then((res) => res.json())
       .then(setFestivals)
       .catch(console.error);

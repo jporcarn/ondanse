@@ -3,6 +3,16 @@ import express from 'express';
 const app = express();
 const port = process.env.PORT ? Number(process.env.PORT) : 3333;
 
+// Allow the Static Web App frontend (different origin) to call this API.
+// Open CORS is fine for the public, read-only festival endpoints; tighten if
+// authenticated or write endpoints are added later.
+app.use((_req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
+
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
