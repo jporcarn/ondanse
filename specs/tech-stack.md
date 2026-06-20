@@ -15,6 +15,10 @@ Ondanse is a global PWA with a TypeScript frontend and TypeScript backend. The a
 - Hosting: Azure Static Web Apps (preferred for the Vite PWA) or Azure Blob Storage + CDN
 - Current choice: Vite for a lightweight, fast PWA starter with a separate backend. Vite is ideal for early-stage development, quick iteration, and a static-first delivery model.
 - Azure infra: Azure Static Web App for the frontend, Azure Linux Web App with Node runtime for the backend, Azure Cosmos DB with MongoDB API for data, and Azure Storage backend for Terraform state.
+- The deployment experience must be plug-and-play for new Azure accounts: only subscription selection is required locally, and backend resources are created automatically.
+- The repository should include automation for bootstrapping Terraform backend resources (resource group, storage account, state container) before running `terraform init`.
+- GitHub Actions should include a pre-init job that sets the Azure subscription, creates the backend resources if needed, and then runs `terraform init` and `terraform plan`.
+- A repository helper or AI skill should be available to prompt for subscription and run the Azure bootstrap flow locally.
 - The architecture avoids containers and containerized solutions in favor of Azure native managed services.
 - Migration path: if the app later needs full-stack rendering, advanced routing, or richer server-side capabilities, migrate to Next.js. The migration is manageable if the frontend is componentized and API boundaries are clean, but it requires dedicated effort for routing, data fetching, and build configuration.
 
