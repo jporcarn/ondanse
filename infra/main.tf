@@ -35,11 +35,14 @@ resource "azurerm_linux_web_app" "backend" {
     application_stack {
       node_version = "20-lts"
     }
+
+    # Linux App Service assigns the port via the PORT env var and forwards to it;
+    # the app reads process.env.PORT. Do not set WEBSITES_PORT for built-in Node.
+    app_command_line = "node dist/index.js"
   }
 
   app_settings = {
-    "WEBSITES_PORT" = "3333"
-    "NODE_ENV"      = var.environment
+    "NODE_ENV" = var.environment
   }
 
   https_only = true
