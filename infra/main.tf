@@ -15,23 +15,6 @@ resource "azurerm_resource_group" "main" {
   tags = local.tags
 }
 
-resource "azurerm_storage_account" "tfstate" {
-  name                            = var.storage_account_name
-  resource_group_name             = azurerm_resource_group.main.name
-  location                        = azurerm_resource_group.main.location
-  account_tier                    = "Standard"
-  account_replication_type        = "LRS"
-  allow_nested_items_to_be_public = false
-
-  tags = local.tags
-}
-
-resource "azurerm_storage_container" "tfstate" {
-  name                  = "tfstate"
-  storage_account_name  = azurerm_storage_account.tfstate.name
-  container_access_type = "private"
-}
-
 resource "azurerm_service_plan" "backend" {
   name                = "${var.project_name}-plan"
   location            = azurerm_resource_group.main.location
@@ -113,10 +96,21 @@ resource "azurerm_cosmosdb_mongo_collection" "festivals" {
   database_name       = azurerm_cosmosdb_mongo_database.ondanse.name
 }
 
+resource "azurerm_log_analytics_workspace" "main" {
+  name                = "${var.project_name}-logs"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+
+  tags = local.tags
+}
+
 resource "azurerm_application_insights" "main" {
   name                = "${var.project_name}-ai"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
+  workspace_id        = azurerm_log_analytics_workspace.main.id
   application_type    = "web"
 
   tags = local.tags

@@ -3,11 +3,6 @@ output "resource_group_name" {
   value       = azurerm_resource_group.main.name
 }
 
-output "storage_account_name" {
-  description = "The name of the storage account used for Terraform state"
-  value       = azurerm_storage_account.tfstate.name
-}
-
 output "backend_web_app_name" {
   description = "The name of the backend Linux Web App"
   value       = azurerm_linux_web_app.backend.name
