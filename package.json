@@ -11,7 +11,7 @@
     "test": "pnpm -r test",
     "build": "pnpm -r build",
     "version": "npx standard-version",
-    "prepare": "npx husky install",
+    "prepare": "husky",
     "dev:backend": "pnpm --dir packages/backend dev",
     "dev:frontend": "pnpm --dir packages/frontend dev",
     "dev": "pnpm -r --parallel --filter @ondanse/backend --filter @ondanse/frontend run dev"
