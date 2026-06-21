@@ -3,7 +3,7 @@ number: "0001"
 slug: initial
 title: Ondanse initial discovery request
 stage: request
-status: refined
+status: planned
 created: 2026-06-21
 ---
 
