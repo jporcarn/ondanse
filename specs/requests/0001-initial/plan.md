@@ -3,7 +3,7 @@ number: "0001"
 slug: initial
 title: Ondanse initial plan
 stage: plan
-status: planned
+status: tasks-generated
 created: 2026-06-21
 ---
 

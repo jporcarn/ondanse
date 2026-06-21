@@ -3,73 +3,167 @@ number: "0001"
 slug: initial
 title: Ondanse initial tasks
 stage: tasks
-status: in-progress
+status: ready
+created: 2026-06-21
 ---
 
 # Ondanse Tasks
 
-## 1. Project scaffolding
+Tasks are grouped to match the plan's structure and sequenced so dependencies
+come first (data model → backend API → frontend discovery → auth & favorites →
+ingestion → infra/cost). Each maps back to a plan in-scope item.
 
-- [ ] Create `src/frontend` with React + Vite or Next.js PWA starter
-- [ ] Create `src/backend` with TypeScript API starter
-- [ ] Add `specs/` documents and update `README.md`
-- [ ] Add `.github/workflows` for CI and deployment
+## 1. Data model & schema foundations
 
-## 2. Data model and API design
+- [ ] Define the shared `Festival` TypeScript type (descriptions map,
+      primaryLanguage, GeoJSON location, UTC date-only range, style, lineup,
+      accommodationFormat, source/facebook/booking URLs, sources[], updatedAtUtc)
+  - Acceptance: a single exported type is used by both backend and frontend;
+    matches the plan's festival model; replaces the inline interfaces.
+  - Touches: `packages/backend/src`, `packages/frontend/src/App.tsx`
+- [ ] Add Cosmos Mongo collections + indexes in Terraform: `festivals`
+      (`2dsphere` on `location.geo`, secondary on `startDateUtc`, `style`),
+      `artists`, `users`, `favorites`, `savedSearches`
+  - Acceptance: `terraform validate` passes; new collections/indexes appear in
+    the plan output.
+  - Touches: `infra/main.tf`
+- [ ] Add a MongoDB data-access layer in the backend (connection from Key Vault
+      secret / env, with local fallback)
+  - Acceptance: backend connects to Cosmos Mongo API and reads the `festivals`
+    collection; connection string is not hardcoded.
+  - Touches: `packages/backend/src`
 
-- [ ] Define festival event model with location, dates, lineup, language fields, and URLs
-- [ ] Design backend API endpoints for festival discovery and filters
-- [ ] Add search schema for DJs/artists and accommodation type
-- [ ] Define Cosmos DB collections and partition strategy
+## 2. Backend REST API
 
-## 3. Frontend discovery UI
+- [ ] Implement `GET /api/festivals` with query params `lat,lng,radius,style,
+      from,to,artist,format,upcomingOnly` (default upcomingOnly=true),
+      proximity-sorted via `$near`/`2dsphere`
+  - Acceptance: returns DB-backed, proximity-sorted, filtered results;
+    upcoming-only by default; documented query params.
+  - Touches: `packages/backend/src/index.ts`
+- [ ] Implement `GET /api/festivals/:id` detail payload (multilingual
+      descriptions, full lineup, all links)
+  - Acceptance: returns a single festival with full detail or 404.
+- [ ] Implement `GET /api/artists?q=` typeahead for the DJ/artist filter
+  - Acceptance: prefix query returns matching normalized artist names.
+- [ ] Add `Cache-Control` headers on public GET endpoints for CDN/edge caching
+  - Acceptance: public GET responses carry cache headers enabling edge caching
+    (Q4 layer 2).
+  - Touches: `packages/backend/src/index.ts`
+- [ ] Wire Key Vault references into Web App app settings for backend secrets
+  - Acceptance: Cosmos connection string + Facebook secret resolve from Key
+    Vault at runtime; none committed to the repo.
+  - Touches: `infra/main.tf`, `packages/backend/src`
 
-- [ ] Implement public list view ordered by distance
-- [ ] Implement map view with selectable radius/area browsing
-- [ ] Add filtering UI for dance style, date range, DJs/artists, and hotel format
-- [ ] Add festival cards with event source, Facebook event link, and provider links
-- [ ] Add language selection and UI localization support
+## 3. Frontend discovery (public, login-free)
 
-## 4. Backend implementation
+- [ ] Implement geolocation permission flow with no-location fallback
+      (region/manual picker)
+  - Acceptance: on grant, location feeds the list/map; on deny/unavailable,
+    discovery still works via fallback.
+  - Touches: `packages/frontend/src`
+- [ ] Implement proximity-ordered list view with festival cards showing name,
+      dates, city/country, distance, format flag, style tags, lineup highlight,
+      and source/Facebook/booking links (Q1)
+  - Acceptance: cards render all Q1 fields from the API; default sort is by
+    distance.
+  - Touches: `packages/frontend/src/App.tsx`
+- [ ] Implement map view with Leaflet + marker clustering (numbered bubbles that
+      split on zoom) and selectable browse radius/area (Q10)
+  - Acceptance: nearby pins cluster and de-cluster on zoom; map queries the API
+    by bounding box/radius; clicking a marker shows a card popover.
+  - Touches: `packages/frontend/src`
+- [ ] Implement filter controls: dance style, date range, DJ/artist search,
+      accommodation format — driving API query params
+  - Acceptance: changing any filter updates results in both list and map.
+  - Touches: `packages/frontend/src`
 
-- [ ] Implement festival listing API with location-based sorting and filters
-- [ ] Add event detail payload with multilingual descriptions and lineup
-- [ ] Add support for external source links and booking providers
-- [ ] Integrate Azure Cosmos DB for event storage
-- [ ] Add backend caching or rate limiting for first-time anonymous user calls
+## 4. Internationalization
 
-## 5. Ingestion and scraping
+- [ ] Add i18next with English default UI bundle and a language switcher (EN/FR
+      + festival-local) (Q5)
+  - Acceptance: UI strings localize; switcher changes language; English is the
+    default.
+  - Touches: `packages/frontend/src`
+- [ ] Add festival-content language resolution helper (preferred → English →
+      local) (Q5)
+  - Acceptance: a festival with multiple descriptions displays per the fallback
+    order based on the selected language.
+  - Touches: `packages/frontend/src`
 
-- [ ] Create ingestion worker pipeline stub
-- [ ] Add provider scraping design for booking sites using Playwright
-- [ ] Add Facebook/Instagram event source integration plan
-- [ ] Normalize scraped data into the festival model
+## 5. PWA & client caching
 
-## 6. Authentication and social enrichment
+- [ ] Add PWA shell: web manifest, service worker, install prompt
+  - Acceptance: app is installable; Lighthouse PWA checks pass for manifest +
+    service worker.
+  - Touches: `packages/frontend`
+- [ ] Add per-device client cache (IndexedDB/localStorage) for anonymous
+      discovery results (Q4 layer 1)
+  - Acceptance: repeat visits serve cached results without an immediate backend
+    call; cache invalidates on a sensible TTL.
+  - Touches: `packages/frontend/src`
 
-- [ ] Add Facebook OAuth login flow to frontend
-- [ ] Add backend support for social login tokens and friend event import
-- [ ] Add UI option for users to import friends’ festival events
-- [ ] Add privacy notes to avoid password storage and minimize sensitive data
+## 6. Auth, favorites & social enrichment (Facebook)
 
-## 7. Azure deployment and cost control
+- [ ] Implement Facebook OAuth login on the frontend (login optional; public
+      browsing unaffected) (Q2)
+  - Acceptance: user can log in/out via Facebook; logged-out experience
+    unchanged.
+  - Touches: `packages/frontend/src`
+- [ ] Implement backend auth: `POST /api/auth/facebook` (token exchange →
+      session) and `GET /api/me`; persist minimal claims to `users` (no
+      passwords)
+  - Acceptance: valid Facebook token yields a session; `/api/me` returns the
+    profile; only minimal claims stored.
+  - Touches: `packages/backend/src`
+- [ ] Implement account-based favorites + saved searches: `GET/PUT
+      /api/me/favorites`, `GET/POST/DELETE /api/me/saved-searches` (auth
+      required) (Q3)
+  - Acceptance: a logged-in user can save/retrieve favorite DJs/artists and
+    saved searches; persists across sessions/devices; 401 when unauthenticated.
+  - Touches: `packages/backend/src`, `packages/frontend/src`
+- [ ] Implement friend-events enrichment: `GET /api/me/friend-events` via Graph
+      API, merged into the feed with source attribution; degrade gracefully if
+      permission is unavailable
+  - Acceptance: when permitted, friends' events appear attributed; when not, the
+    feed still works with no error.
+  - Touches: `packages/backend/src`, `packages/frontend/src`
+- [ ] Tighten CORS to a credentialed origin for auth/favorites routes (keep open
+      GET for public endpoints)
+  - Acceptance: authenticated routes reject disallowed origins; public GETs stay
+    open.
+  - Touches: `packages/backend/src/index.ts`
 
-- [ ] Add Azure Static Web Apps deployment config
-- [ ] Add Azure Functions or Container Apps deployment config
-- [ ] Configure Azure Cosmos DB deployment and geo-replication plan
-- [ ] Add Azure Cost Management and budget alert guidance
-- [ ] Add documentation for cost-control strategy
+## 7. Ingestion & worker pipeline
 
-## 8. Testing and validation
+- [ ] Scaffold a scheduled ingestion worker on consumption compute (timer-
+      triggered Function / scheduled job), separate from the B1 API
+  - Acceptance: worker runs on a schedule locally and has deploy config; does
+    not run on the always-on Web App plan.
+  - Touches: `packages`, `infra`
+- [ ] Implement a normalizer mapping provider fields → the `Festival` model with
+      source attribution, upserting into Cosmos
+  - Acceptance: given sample provider data, produces valid `Festival` documents
+    with `sources[]` populated.
+  - Touches: `packages` (worker)
+- [ ] Implement the first Playwright scraper (goandance.com) as the pattern;
+      stub/follow-on for billetweb.fr and lasalsadelbaile.com (Q9)
+  - Acceptance: goandance scraper extracts listings and feeds the normalizer;
+    remaining scrapers tracked as follow-on tasks.
+  - Touches: `packages` (worker)
+- [ ] Implement Facebook Events Graph API ingestion (API-first source) (Q9)
+  - Acceptance: permitted events are pulled via Graph API and normalized.
+  - Touches: `packages` (worker)
 
-- [ ] Add frontend unit tests for list and map views
-- [ ] Add backend API tests for festival queries and filtering
-- [ ] Add integration tests for OAuth login flow and social import
-- [ ] Add validation for multilingual content fallback behavior
+## 8. Infrastructure & cost control
 
-## 9. Documentation and handoff
-
-- [ ] Document feature behavior in `specs/` and `README.md`
-- [ ] Document Azure budget alert setup
-- [ ] Document scraping and compliance notes
-- [ ] Document next steps for MVP refinement and build-plan execution
+- [ ] Add `azurerm_consumption_budget` at €50/month with 50/80/100% alert
+      thresholds (Q7)
+  - Acceptance: `terraform validate`/plan shows a €50 budget with three alert
+    thresholds notifying the subscription owner.
+  - Touches: `infra/main.tf`, `infra/variables.tf`
+- [ ] Document the ingestion-via-scripts / direct-Cosmos curation flow (no admin
+      UI) and scraping/compliance notes (Q6)
+  - Acceptance: a short doc explains how to run ingestion and edit data directly,
+    plus ToS/compliance notes.
+  - Touches: `docs/`, `specs/`
