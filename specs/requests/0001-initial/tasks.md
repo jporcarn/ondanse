@@ -1,3 +1,11 @@
+---
+number: "0001"
+slug: initial
+title: Ondanse initial tasks
+stage: tasks
+status: in-progress
+---
+
 # Ondanse Tasks
 
 ## 1. Project scaffolding
