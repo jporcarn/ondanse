@@ -21,6 +21,18 @@ Use this file to define the AI workflow for the project and record which agents,
 - **Builder** - scaffolds code, builds components, and implements features.
 - **Tester** - creates test cases and validates behavior.
 
+## Spec-Driven Development workflow
+
+The project uses a Spec-Driven Development (SDD) flow: every unit of work starts
+as a numbered request and moves through refine → plan → tasks → implement, with a
+durable artifact at each stage under `specs/requests/NNNN-<slug>/`.
+
+- Methodology, conventions, and templates: `.claude/skills/sdd/SKILL.md`.
+- Commands (run in order): `/sdd-new-request` → `/sdd-refine` → `/sdd-plan` →
+  `/sdd-tasks` → `/sdd-implement` (defined in `.claude/commands/`).
+- All changes follow the branch-and-PR workflow in
+  `.github/copilot-instructions.md`.
+
 ## Commands and Skills
 
 For the coming specs and development tasks, the following are important:
