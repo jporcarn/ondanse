@@ -180,12 +180,16 @@ ingestion → infra/cost). Each maps back to a plan in-scope item.
     approved), normalizer defaults to approved + passes through reason. Verified
     with 4 unit + 8 HTTP checks (pending/rejected hidden, legacy visible, hidden
     detail 404s).
-- [ ] Implement a reusable style-verification helper + per-style keyword map (Q11)
+- [x] Implement a reusable style-verification helper + per-style keyword map (Q11)
   - Acceptance: given a festival's text (description + title + style tags) and a
     requested style, returns `approved` vs `pending-review` with the matched
     keywords; kizomba family seeded (urbankiz/urban kiz, tarraxo/tarraxinha,
     konpa/kompa, ghetto zouk, …); unit-tested, extensible to new styles.
   - Touches: `packages/worker/src`
+  - Done in PR #22 — `styleVerification.ts`: `STYLE_KEYWORDS` map + `verifyStyle`
+    (case/diacritic-insensitive, fallback to style name for unknown styles,
+    `moderationReason` with matched keywords). Verified with 15 unit checks
+    (incl. the bachata-under-kizomba pollution case and no false-match on "quiz").
 - [ ] Implement the first Playwright scraper (goandance.com) as the pattern;
       stub/follow-on for billetweb.fr and lasalsadelbaile.com (Q9)
   - Acceptance: goandance scraper collects festival links from the style-filtered
