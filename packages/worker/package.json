@@ -13,7 +13,8 @@
   "dependencies": {
     "@ondanse/shared": "workspace:*",
     "mongodb": "^6.12.0",
-    "node-cron": "^3.0.3"
+    "node-cron": "^3.0.3",
+    "playwright": "^1.49.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
