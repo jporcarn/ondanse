@@ -11,6 +11,7 @@
     "lint": "echo \"No backend lint configured yet\""
   },
   "dependencies": {
+    "@ondanse/shared": "workspace:*",
     "express": "^4.18.0"
   },
   "devDependencies": {

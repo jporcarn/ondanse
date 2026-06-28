@@ -23,6 +23,9 @@ importers:
 
   packages/backend:
     dependencies:
+      '@ondanse/shared':
+        specifier: workspace:*
+        version: link:../shared
       express:
         specifier: ^4.18.0
         version: 4.22.2
@@ -42,6 +45,9 @@ importers:
 
   packages/frontend:
     dependencies:
+      '@ondanse/shared':
+        specifier: workspace:*
+        version: link:../shared
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -64,6 +70,12 @@ importers:
       vite:
         specifier: ^8.0.16
         version: 8.0.16(@types/node@20.5.1)
+
+  packages/shared:
+    devDependencies:
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
 
 packages:
 

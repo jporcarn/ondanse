@@ -1,17 +1,5 @@
 import { useEffect, useState } from 'react';
-
-interface Festival {
-  id: string;
-  name: string;
-  location: { city: string; country: string };
-  startDateUtc: string;
-  endDateUtc: string;
-  style: string[];
-  lineup: string[];
-  sourceUrl: string;
-  bookingUrls: string[];
-  accommodationFormat: string;
-}
+import type { Festival } from '@ondanse/shared';
 
 // In production the frontend (Static Web App) calls the backend's public URL,
 // injected at build time via VITE_API_BASE_URL. In local dev it is unset, so the

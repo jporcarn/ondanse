@@ -1,4 +1,5 @@
 import express from 'express';
+import type { Festival } from '@ondanse/shared';
 
 const app = express();
 const port = process.env.PORT ? Number(process.env.PORT) : 3333;
@@ -18,20 +19,38 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.get('/api/festivals', (_req, res) => {
-  res.json([
+  // Placeholder seed until the Cosmos-backed data-access layer lands (task 1.3).
+  const festivals: Festival[] = [
     {
       id: 'test-festival-1',
       name: 'Loves Kizomba Summer Fest 2026',
-      location: { city: 'Seville', country: 'Spain', lat: 37.296, lng: -5.995 },
-      startDateUtc: '2026-06-30T00:00:00Z',
-      endDateUtc: '2026-07-07T00:00:00Z',
+      descriptions: { en: 'A week-long kizomba festival in Seville.' },
+      primaryLanguage: 'en',
+      location: {
+        city: 'Seville',
+        country: 'Spain',
+        // GeoJSON order: [longitude, latitude]
+        geo: { type: 'Point', coordinates: [-5.995, 37.296] }
+      },
+      startDateUtc: '2026-06-30',
+      endDateUtc: '2026-07-07',
       style: ['Kizomba', 'Urban Kizz'],
       lineup: ['DJ Shark', 'DJ Snake', 'DJ Nice Life'],
+      accommodationFormat: 'all-in-one',
       sourceUrl: 'https://www.facebook.com/events/1651344175563437',
+      facebookEventUrl: 'https://www.facebook.com/events/1651344175563437',
       bookingUrls: ['https://salsero.es', 'https://www.goandance.com'],
-      accommodationFormat: 'all-in-one'
+      sources: [
+        {
+          provider: 'facebook',
+          url: 'https://www.facebook.com/events/1651344175563437',
+          retrievedAtUtc: '2026-06-21T00:00:00Z'
+        }
+      ],
+      updatedAtUtc: '2026-06-21T00:00:00Z'
     }
-  ]);
+  ];
+  res.json(festivals);
 });
 
 app.listen(port, () => {
