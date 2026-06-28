@@ -1,4 +1,4 @@
-import type { AccommodationFormat } from '@ondanse/shared';
+import type { AccommodationFormat, ModerationStatus } from '@ondanse/shared';
 
 /**
  * The provider-agnostic shape a scraper/source produces for a single festival,
@@ -29,6 +29,13 @@ export interface ScrapedFestival {
   accommodationFormat?: AccommodationFormat;
   facebookEventUrl?: string;
   bookingUrls?: string[];
+  /**
+   * Visibility gate set by a source that verifies relevance (Q11). Omit to let
+   * the normalizer default to `approved` (trusted sources).
+   */
+  moderationStatus?: ModerationStatus;
+  /** Context for reviewers, e.g. which style keywords matched. */
+  moderationReason?: string;
 }
 
 /**

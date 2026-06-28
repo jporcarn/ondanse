@@ -169,13 +169,17 @@ ingestion → infra/cost). Each maps back to a plan in-scope item.
     validation, `sources[]`) + `bulkWrite` upsert deduped by `sourceUrl`, and a
     `runIngestion` pipeline with per-source failure isolation. Verified with
     26 unit + 13 integration checks against an ephemeral MongoDB.
-- [ ] Add `moderationStatus` to the data model and gate the public API (Q11)
+- [x] Add `moderationStatus` to the data model and gate the public API (Q11)
   - Acceptance: shared `Festival` type gains `moderationStatus`
     (`approved` | `pending-review` | `rejected`) + optional `moderationReason`;
     public `GET /api/festivals` and `/api/festivals/:id` return only `approved`
     (documents missing the field are treated as approved); the worker normalizer
     defaults to `approved`; the seed sets `approved`.
   - Touches: `packages/shared`, `packages/backend/src`, `packages/worker/src`
+  - Done in PR #21 — `$nin` gate on both public GETs (legacy docs treated as
+    approved), normalizer defaults to approved + passes through reason. Verified
+    with 4 unit + 8 HTTP checks (pending/rejected hidden, legacy visible, hidden
+    detail 404s).
 - [ ] Implement a reusable style-verification helper + per-style keyword map (Q11)
   - Acceptance: given a festival's text (description + title + style tags) and a
     requested style, returns `approved` vs `pending-review` with the matched

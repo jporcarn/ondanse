@@ -64,6 +64,16 @@ export interface FestivalSource {
 }
 
 /**
+ * Visibility gate for a festival (Q11). Provider style filters are leaky, so
+ * scraped festivals are style-verified before they reach users:
+ * - `approved`: shown publicly.
+ * - `pending-review`: stored but hidden, awaiting manual approval.
+ * - `rejected`: manually marked as not relevant.
+ * The public API returns only `approved` festivals.
+ */
+export type ModerationStatus = 'approved' | 'pending-review' | 'rejected';
+
+/**
  * A discoverable dance festival — the core entity of Ondanse. Mirrors the
  * `festivals` collection in Cosmos (Mongo API).
  */
@@ -96,6 +106,10 @@ export interface Festival {
   bookingUrls: string[];
   /** Source attribution; populated by the ingestion pipeline. */
   sources: FestivalSource[];
+  /** Visibility gate (Q11); the public API returns only `approved`. */
+  moderationStatus: ModerationStatus;
+  /** Why this status was set (e.g. matched keywords) — context for reviewers. */
+  moderationReason?: string;
   /** When this record was last updated by ingestion. */
   updatedAtUtc: UtcTimestamp;
 }

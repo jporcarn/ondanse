@@ -15,6 +15,13 @@ import {
 const app = express();
 const port = process.env.PORT ? Number(process.env.PORT) : 3333;
 
+// Public endpoints never expose pending-review/rejected festivals (Q11).
+// `$nin` also matches documents missing the field, so legacy records without a
+// moderationStatus are treated as approved (backward compatible).
+const APPROVED_ONLY: Filter<FestivalDoc> = {
+  moderationStatus: { $nin: ['pending-review', 'rejected'] },
+};
+
 // Allow the Static Web App frontend (different origin) to call this API.
 // Open CORS is fine for the public, read-only festival endpoints; tighten if
 // authenticated or write endpoints are added later.
@@ -51,7 +58,8 @@ app.get('/api/festivals', publicCache, async (req, res) => {
       new Date()
     );
     await connectToDatabase();
-    let cursor = getFestivalsCollection().find(filter).limit(limit);
+    const publicFilter: Filter<FestivalDoc> = { ...filter, ...APPROVED_ONLY };
+    let cursor = getFestivalsCollection().find(publicFilter).limit(limit);
     if (sort) cursor = cursor.sort(sort);
     const docs = await cursor.toArray();
     res.json(docs.map(toFestival));
@@ -73,7 +81,10 @@ app.get('/api/festivals/:id', publicCache, async (req, res) => {
     // id too for forward compatibility.
     const _id = ObjectId.isValid(id) ? new ObjectId(id) : id;
     await connectToDatabase();
-    const doc = await getFestivalsCollection().findOne({ _id } as unknown as Filter<FestivalDoc>);
+    const doc = await getFestivalsCollection().findOne({
+      ...({ _id } as unknown as Filter<FestivalDoc>),
+      ...APPROVED_ONLY,
+    });
     if (!doc) {
       res.status(404).json({ error: 'Festival not found' });
       return;
