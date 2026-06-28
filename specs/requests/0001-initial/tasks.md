@@ -3,7 +3,7 @@ number: "0001"
 slug: initial
 title: Ondanse initial tasks
 stage: tasks
-status: ready
+status: in-progress
 created: 2026-06-21
 ---
 
@@ -15,12 +15,13 @@ ingestion → infra/cost). Each maps back to a plan in-scope item.
 
 ## 1. Data model & schema foundations
 
-- [ ] Define the shared `Festival` TypeScript type (descriptions map,
+- [x] Define the shared `Festival` TypeScript type (descriptions map,
       primaryLanguage, GeoJSON location, UTC date-only range, style, lineup,
       accommodationFormat, source/facebook/booking URLs, sources[], updatedAtUtc)
   - Acceptance: a single exported type is used by both backend and frontend;
     matches the plan's festival model; replaces the inline interfaces.
   - Touches: `packages/backend/src`, `packages/frontend/src/App.tsx`
+  - Done in PR #15 — new `@ondanse/shared` package; both packages import it.
 - [ ] Add Cosmos Mongo collections + indexes in Terraform: `festivals`
       (`2dsphere` on `location.geo`, secondary on `startDateUtc`, `style`),
       `artists`, `users`, `favorites`, `savedSearches`
