@@ -1,13 +1,43 @@
 import type { IngestionSource } from '../types';
+import { createGoandanceSource } from './goandance';
+import { createPlaywrightFetcher } from '../playwrightFetcher';
 
 /**
- * The active ingestion sources. Real scrapers/clients are registered here as
- * they land:
- *   - goandance.com Playwright scraper (request 0001 task 7.3)
- *   - billetweb.fr, lasalsadelbaile.com (follow-on, task 7.3)
- *   - Facebook Events Graph API (task 7.4)
+ * Build the active ingestion sources plus a cleanup for any resources they hold
+ * (e.g. the Playwright browser). Configured via env:
+ *   - GOANDANCE_STYLES: comma-separated styles to scrape (default "kizomba").
  *
- * Until then the registry is empty and a real run reports "0 sources". The
- * pipeline itself is exercised in tests with fixture sources.
+ * Follow-on sources: billetweb.fr, lasalsadelbaile.com (task 7.3) and the
+ * Facebook Events Graph API (task 7.4) register here as they land.
  */
-export const sources: IngestionSource[] = [];
+export interface ConfiguredSources {
+  sources: IngestionSource[];
+  cleanup: () => Promise<void>;
+}
+
+export async function buildSources(): Promise<ConfiguredSources> {
+  const sources: IngestionSource[] = [];
+  const cleanups: Array<() => Promise<void>> = [];
+
+  const goandanceStyles = (process.env.GOANDANCE_STYLES ?? 'kizomba')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  if (goandanceStyles.length > 0) {
+    const { fetchPage, close } = await createPlaywrightFetcher();
+    sources.push(createGoandanceSource({ styles: goandanceStyles, fetchPage }));
+    cleanups.push(close);
+  }
+
+  return {
+    sources,
+    cleanup: async () => {
+      for (const close of cleanups) {
+        await close().catch(() => {
+          /* ignore teardown errors */
+        });
+      }
+    },
+  };
+}

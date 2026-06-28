@@ -190,7 +190,7 @@ ingestion → infra/cost). Each maps back to a plan in-scope item.
     (case/diacritic-insensitive, fallback to style name for unknown styles,
     `moderationReason` with matched keywords). Verified with 15 unit checks
     (incl. the bachata-under-kizomba pollution case and no false-match on "quiz").
-- [ ] Implement the first Playwright scraper (goandance.com) as the pattern;
+- [x] Implement the first Playwright scraper (goandance.com) as the pattern;
       stub/follow-on for billetweb.fr and lasalsadelbaile.com (Q9)
   - Acceptance: goandance scraper collects festival links from the style-filtered
     listing, then fetches each **detail page** and applies the style-verification
@@ -198,6 +198,12 @@ ingestion → infra/cost). Each maps back to a plan in-scope item.
     doubt — before feeding the normalizer; remaining scrapers tracked as
     follow-on tasks.
   - Touches: `packages` (worker)
+  - Done in PR #23 — JSON-LD + maps-coords parsing behind an injectable
+    Playwright fetcher (rel="next" pagination, GOANDANCE_STYLES config).
+    Verified with 23 fixture checks against real HTML **and a live Playwright
+    run**: 18 scraped → 8 approved, 10 pending-review (the bachata/salsa/latin
+    pollution correctly held back). billetweb.fr + lasalsadelbaile.com remain
+    follow-on.
 - [ ] Document the manual-review flow for the `pending-review` queue (Q11, Q6)
   - Acceptance: short doc/script notes explaining how to list `pending-review`
     festivals and approve/reject them via direct Cosmos access (no admin UI).

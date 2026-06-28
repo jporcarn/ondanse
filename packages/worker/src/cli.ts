@@ -1,7 +1,7 @@
 import cron from 'node-cron';
 import { runIngestion } from './pipeline';
 import { close } from './db';
-import { sources } from './sources';
+import { buildSources } from './sources';
 
 /**
  * Worker entry point.
@@ -13,11 +13,16 @@ import { sources } from './sources';
  */
 
 async function runOnce(): Promise<void> {
+  const { sources, cleanup } = await buildSources();
   if (sources.length === 0) {
-    console.warn('No ingestion sources configured yet (add scrapers — task 7.3/7.4).');
+    console.warn('No ingestion sources configured.');
   }
-  const report = await runIngestion(sources);
-  console.log('Ingestion report:', JSON.stringify(report));
+  try {
+    const report = await runIngestion(sources);
+    console.log('Ingestion report:', JSON.stringify(report));
+  } finally {
+    await cleanup();
+  }
 }
 
 async function main(): Promise<void> {
