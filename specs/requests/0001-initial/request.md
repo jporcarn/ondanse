@@ -4,6 +4,7 @@ slug: initial
 title: Ondanse initial discovery request
 stage: request
 status: planned
+created: 2026-06-21
 ---
 
 # Ondanse Request
@@ -25,15 +26,33 @@ Ondanse is a global Progressive Web App (PWA) for discovering and planning dance
 - Scrape booking provider search pages if APIs are unavailable, with Playwright-based backend workers.
 - Avoid storing user passwords or sensitive credential data in Azure.
 
-## Questions for refinement
+## Constraints & assumptions
 
-1. What are the most important festival attributes to display in the list and map cards?
-2. Which OAuth providers should be supported besides Facebook (e.g. Google, Apple)?
-3. Should users be able to save favorite DJs/artists or festival searches?
-4. Should the public experience support anonymous caching by device or by browser session?
-5. How should the app show a festival that has multiple language descriptions?
-6. Do we need a separate admin/curation interface for ingestion or provider mapping?
-7. What budget threshold should trigger alerts for the Azure subscription?
-8. Should there be a rate limit for unauthenticated users beyond first-time backend call caching?
-9. Which booking providers are priority for scraping versus API integration?
-10. Is the initial MVP expected to support map clustering or only individual festival markers?
+- Public discovery (list + map) works fully anonymously; no login required for browsing.
+- Authentication is Facebook OAuth only for the MVP; it powers both optional login and friend-event social enrichment. No Google/Apple at this stage.
+- MVP includes account-based persistence for saved favorite DJs/artists and saved festival searches — this requires user accounts and backend storage for logged-in users (the public experience remains login-free).
+- Festival cards (list and map) display: name, date range (date-only), city/country, distance from the user, hotel/all-in-one format flag, dance-style tags, a short DJ/artist lineup highlight, and event source / Facebook event / booking provider links.
+- Multilingual display resolves as preferred UI language → English → festival's local language, with a user-facing language switcher.
+- The map uses marker clustering (nearby pins grouped into a numbered bubble that splits on zoom) from the MVP.
+- Anonymous discovery is cached at two layers: per-device client cache (localStorage/IndexedDB) plus Azure CDN/edge caching, to minimize backend calls.
+- No dedicated admin/curation UI in the MVP; ingestion and provider mapping are managed via scripts and direct Cosmos DB access.
+- Priority booking sources: goandance.com, billetweb.fr, and lasalsadelbaile.com via Playwright scraping; Facebook Events via Graph API where permitted (API-first when available).
+- Azure budget alert set at €50/month with notifications at 50% / 80% / 100% thresholds.
+- No explicit API rate limiting in the MVP — deferred to a later iteration; first-time caching + edge caching are the only call-reduction measures for now.
+
+## Open questions
+
+_None — all refinement questions resolved (see Decisions)._
+
+## Decisions
+
+- Q1 (card attributes) → Cards show **name, dates, location, distance, format flag, dance styles + lineup highlight, and source/Facebook/booking links** (rationale: covers every discovery, filter, and linking goal in the project definition with one core card layout).
+- Q2 (OAuth providers) → **Facebook only** for the MVP (rationale: Facebook is the sole provider that unlocks the friends'-events social enrichment feature; Google/Apple add login surface without social value and can be added later).
+- Q3 (saved favorites) → **Account-based** saved favorite DJs/artists and saved searches (rationale: user chose durable, cross-device persistence; introduces logged-in user accounts + backend storage while keeping public browsing anonymous).
+- Q4 (anonymous caching) → **Per-device client cache (localStorage/IndexedDB) + Azure CDN/edge** (rationale: maximizes backend-call reduction and survives reloads, directly serving the personal-budget cost goal).
+- Q5 (multi-language display) → **Preferred → English → local-language fallback** with a language switcher (rationale: matches the specs' English-default rule while personalizing for the user's chosen language).
+- Q6 (admin/curation interface) → **Defer; manage via scripts and direct Cosmos DB** (rationale: lowest cost and fastest MVP; a curation UI is a post-MVP concern).
+- Q7 (budget threshold) → **€50/month** with alerts at 50/80/100% (rationale: headroom for serverless + low-tier Cosmos while still catching runaway spend on a personal PAYG subscription).
+- Q8 (rate limiting) → **Skip for the MVP**, revisit in a later iteration (rationale: user judged it a premature optimization; caching + edge caching suffice initially).
+- Q9 (booking providers) → **Scrape goandance.com, billetweb.fr, lasalsadelbaile.com; use Facebook Events Graph API where available** (rationale: these are the named on-target sources without public APIs; prefer API over scraping when one exists).
+- Q10 (map clustering) → **Clustering from the MVP** (rationale: keeps a global map readable as the catalog grows, despite slightly more upfront work).
