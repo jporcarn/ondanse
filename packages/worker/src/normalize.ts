@@ -77,6 +77,10 @@ export function normalizeFestival(raw: ScrapedFestival, now: Date): NormalizedFe
     facebookEventUrl: raw.facebookEventUrl?.trim() || undefined,
     bookingUrls: raw.bookingUrls?.map((u) => u.trim()).filter(Boolean) ?? [],
     sources: [{ provider: raw.provider.trim(), url: raw.sourceUrl.trim(), retrievedAtUtc }],
+    // Sources that don't verify relevance are trusted (default approved); a
+    // verifying scraper sets pending-review for doubtful matches (Q11).
+    moderationStatus: raw.moderationStatus ?? 'approved',
+    ...(raw.moderationReason?.trim() ? { moderationReason: raw.moderationReason.trim() } : {}),
     updatedAtUtc: retrievedAtUtc,
   };
 }

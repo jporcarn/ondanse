@@ -35,6 +35,7 @@ const sample: Omit<FestivalDoc, '_id'> = {
       retrievedAtUtc: '2026-06-21T00:00:00Z',
     },
   ],
+  moderationStatus: 'approved',
   updatedAtUtc: '2026-06-21T00:00:00Z',
 };
 
