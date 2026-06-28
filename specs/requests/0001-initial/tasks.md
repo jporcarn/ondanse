@@ -169,11 +169,31 @@ ingestion → infra/cost). Each maps back to a plan in-scope item.
     validation, `sources[]`) + `bulkWrite` upsert deduped by `sourceUrl`, and a
     `runIngestion` pipeline with per-source failure isolation. Verified with
     26 unit + 13 integration checks against an ephemeral MongoDB.
+- [ ] Add `moderationStatus` to the data model and gate the public API (Q11)
+  - Acceptance: shared `Festival` type gains `moderationStatus`
+    (`approved` | `pending-review` | `rejected`) + optional `moderationReason`;
+    public `GET /api/festivals` and `/api/festivals/:id` return only `approved`
+    (documents missing the field are treated as approved); the worker normalizer
+    defaults to `approved`; the seed sets `approved`.
+  - Touches: `packages/shared`, `packages/backend/src`, `packages/worker/src`
+- [ ] Implement a reusable style-verification helper + per-style keyword map (Q11)
+  - Acceptance: given a festival's text (description + title + style tags) and a
+    requested style, returns `approved` vs `pending-review` with the matched
+    keywords; kizomba family seeded (urbankiz/urban kiz, tarraxo/tarraxinha,
+    konpa/kompa, ghetto zouk, …); unit-tested, extensible to new styles.
+  - Touches: `packages/worker/src`
 - [ ] Implement the first Playwright scraper (goandance.com) as the pattern;
       stub/follow-on for billetweb.fr and lasalsadelbaile.com (Q9)
-  - Acceptance: goandance scraper extracts listings and feeds the normalizer;
-    remaining scrapers tracked as follow-on tasks.
+  - Acceptance: goandance scraper collects festival links from the style-filtered
+    listing, then fetches each **detail page** and applies the style-verification
+    helper (Q11) — auto-`approved` on a confident match, `pending-review` on
+    doubt — before feeding the normalizer; remaining scrapers tracked as
+    follow-on tasks.
   - Touches: `packages` (worker)
+- [ ] Document the manual-review flow for the `pending-review` queue (Q11, Q6)
+  - Acceptance: short doc/script notes explaining how to list `pending-review`
+    festivals and approve/reject them via direct Cosmos access (no admin UI).
+  - Touches: `docs/`, `packages` (worker, optional helper script)
 - [ ] Implement Facebook Events Graph API ingestion (API-first source) (Q9)
   - Acceptance: permitted events are pulled via Graph API and normalized.
   - Touches: `packages` (worker)

@@ -46,6 +46,9 @@ in infra and is justified below.
   - Ingestion worker pipeline: Playwright scrapers for goandance.com,
     billetweb.fr, lasalsadelbaile.com, plus Facebook Events via Graph API where
     permitted; normalization into the festival model (Q9).
+  - **Per-festival style verification** of scraped events (detail-page keyword
+    check) with a `moderationStatus` gate — approved festivals are public,
+    doubtful ones wait for manual review (Q11).
   - Azure **€50/month budget alert** at 50/80/100% (Q7), Key Vault for secrets.
 - **Out:**
   - Admin/curation UI — managed via scripts + direct Cosmos access (Q6).
@@ -82,8 +85,9 @@ in infra and is justified below.
   [index.ts](../../../packages/backend/src/index.ts):
   - `GET /api/festivals` — list with `lat/lng/radius`, `style`, `from/to`,
     `artist`, `format`, `upcomingOnly` (default true); proximity-sorted.
+    **Returns only `moderationStatus: approved` festivals** (Q11).
   - `GET /api/festivals/:id` — detail payload (multilingual descriptions, full
-    lineup, all links).
+    lineup, all links). Also approved-only for the public.
   - `GET /api/artists?q=` — DJ/artist typeahead for the filter.
   - Auth: `POST /api/auth/facebook` (exchange token → session), `GET /api/me`.
   - Favorites (auth required): `GET/PUT /api/me/favorites`,
@@ -105,6 +109,13 @@ in infra and is justified below.
   where permitted (API-first). A normalizer maps provider fields → the festival
   model and upserts into Cosmos with source attribution. Initial delivery is a
   runnable worker + one real scraper as the pattern; remaining providers follow.
+- **Style verification (Q11):** provider style filters are leaky, so after a
+  scraper collects festival links from a style-filtered listing it fetches each
+  festival's detail page and checks its description + title + style tags against
+  a per-style keyword/synonym map. A confident match sets
+  `moderationStatus: approved`; no match / doubt sets `pending-review` (stored
+  but hidden). Generic sources without a verification step default to `approved`.
+  The verification result records which keywords matched, to aid manual review.
 - Hosting: timer-triggered Azure Functions or a scheduled job (consumption-based)
   separate from the always-on API Web App, to keep scraping cost off the B1 plan.
 
@@ -137,8 +148,12 @@ in infra and is justified below.
   `startDateUtc`/`endDateUtc` (UTC, date-only semantics preserved),
   `style[]`, `lineup[]` (DJs/instructors/artists), `accommodationFormat`
   (`all-in-one` | `multi-venue`), `sourceUrl`, `facebookEventUrl`,
-  `bookingUrls[]`, `sources[]` (provider attribution), `updatedAtUtc`.
+  `bookingUrls[]`, `sources[]` (provider attribution), `updatedAtUtc`,
+  and **`moderationStatus`** (`approved` | `pending-review` | `rejected`) with an
+  optional **`moderationReason`** / matched-keywords note for reviewers (Q11).
   Index: `2dsphere` on `location.geo`; secondary on `startDateUtc`, `style`.
+  The public API filters to `moderationStatus: approved`; documents missing the
+  field are treated as approved for backward compatibility.
 - **`artists`** (new): normalized DJ/artist names for typeahead + filtering;
   referenced from festival `lineup`.
 - **`users`** (new): minimal identity from Facebook (provider id, display name,
@@ -153,6 +168,10 @@ in infra and is justified below.
 
 - **Scraping fragility / ToS** → prefer APIs (Facebook), isolate scrapers,
   normalize defensively, fail per-source without breaking ingestion; respect ToS.
+- **Leaky provider style filters polluting results** (Q11) → re-verify each
+  scraped festival against the requested style's keyword set on its detail page;
+  only confident matches are auto-`approved` and shown, doubtful ones go to a
+  `pending-review` queue for manual approval, so a wrong festival never surfaces.
 - **Always-on B1 cost** → budget alert at €50 (Q7), aggressive caching, keep
   scraping on consumption compute, downsize/scale-to-zero path noted for later.
 - **Facebook Graph permission/review friction** (friends' events need app

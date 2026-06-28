@@ -39,6 +39,7 @@ Ondanse is a global Progressive Web App (PWA) for discovering and planning dance
 - Priority booking sources: goandance.com, billetweb.fr, and lasalsadelbaile.com via Playwright scraping; Facebook Events via Graph API where permitted (API-first when available).
 - Azure budget alert set at €50/month with notifications at 50% / 80% / 100% thresholds.
 - No explicit API rate limiting in the MVP — deferred to a later iteration; first-time caching + edge caching are the only call-reduction measures for now.
+- Provider style filters are unreliable: goandance.com's `?styles=kizomba` listing also returns unrelated events (bachata/salsa/latin festivals). Scraped festivals must be style-verified before they are shown, so a wrong festival never reaches an Ondanse user.
 
 ## Open questions
 
@@ -56,3 +57,8 @@ _None — all refinement questions resolved (see Decisions)._
 - Q8 (rate limiting) → **Skip for the MVP**, revisit in a later iteration (rationale: user judged it a premature optimization; caching + edge caching suffice initially).
 - Q9 (booking providers) → **Scrape goandance.com, billetweb.fr, lasalsadelbaile.com; use Facebook Events Graph API where available** (rationale: these are the named on-target sources without public APIs; prefer API over scraping when one exists).
 - Q10 (map clustering) → **Clustering from the MVP** (rationale: keeps a global map readable as the catalog grows, despite slightly more upfront work).
+- Q11 (scraped-style verification) → **Verify each scraped festival against the requested style's keyword set on its detail page, and gate visibility with a `moderationStatus` field** (rationale: provider listing filters are leaky, so trust must be re-established per festival). Specifics:
+  - After collecting festival links from a style-filtered listing, fetch each festival's **detail page** and check its **description + title + style tags** for the requested style's keywords and related sub-styles (e.g. kizomba → urbankiz/urban kiz, tarraxo/tarraxinha, konpa/kompa, ghetto zouk).
+  - **Confident match → `approved`** (shown to users immediately). **No match / doubt → `pending-review`** (stored but hidden, awaiting manual approval). A reviewer can also set `rejected`.
+  - The public API returns **only `approved`** festivals. Manual review of the `pending-review` queue is done via scripts / direct Cosmos access, consistent with **Q6** (no admin UI).
+  - The per-style keyword/synonym map is maintained in the worker code and is extensible as new styles are scraped.
