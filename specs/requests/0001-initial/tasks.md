@@ -33,11 +33,15 @@ ingestion → infra/cost). Each maps back to a plan in-scope item.
     Terraform — it is created at runtime by the data-access layer (task 1.3).
     Terraform manages the collections + the `startDateUtc`/`style`/`_id`/lookup
     indexes; `terraform validate` and `fmt -check` pass.
-- [ ] Add a MongoDB data-access layer in the backend (connection from Key Vault
+- [x] Add a MongoDB data-access layer in the backend (connection from Key Vault
       secret / env, with local fallback)
   - Acceptance: backend connects to Cosmos Mongo API and reads the `festivals`
     collection; connection string is not hardcoded.
   - Touches: `packages/backend/src`
+  - Done in PR #17 — `db.ts` (env/local-fallback connection, `2dsphere` index
+    bootstrap, `toFestival` mapping); `/api/festivals` now reads the collection;
+    `seed.ts` dev script (Q6). Verified end-to-end against an ephemeral MongoDB
+    (connect, geo index, `$near` query, HTTP GET all pass).
 
 ## 2. Backend REST API
 
