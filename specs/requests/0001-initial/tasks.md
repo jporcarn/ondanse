@@ -22,12 +22,17 @@ ingestion → infra/cost). Each maps back to a plan in-scope item.
     matches the plan's festival model; replaces the inline interfaces.
   - Touches: `packages/backend/src`, `packages/frontend/src/App.tsx`
   - Done in PR #15 — new `@ondanse/shared` package; both packages import it.
-- [ ] Add Cosmos Mongo collections + indexes in Terraform: `festivals`
+- [x] Add Cosmos Mongo collections + indexes in Terraform: `festivals`
       (`2dsphere` on `location.geo`, secondary on `startDateUtc`, `style`),
       `artists`, `users`, `favorites`, `savedSearches`
   - Acceptance: `terraform validate` passes; new collections/indexes appear in
     the plan output.
   - Touches: `infra/main.tf`
+  - Done in PR #16. NOTE: the azurerm provider's collection `index` block only
+    supports `keys`/`unique`, so the `2dsphere` index cannot be declared in
+    Terraform — it is created at runtime by the data-access layer (task 1.3).
+    Terraform manages the collections + the `startDateUtc`/`style`/`_id`/lookup
+    indexes; `terraform validate` and `fmt -check` pass.
 - [ ] Add a MongoDB data-access layer in the backend (connection from Key Vault
       secret / env, with local fallback)
   - Acceptance: backend connects to Cosmos Mongo API and reads the `festivals`
