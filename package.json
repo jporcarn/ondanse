@@ -5,7 +5,8 @@
   "workspaces": [
     "packages/shared",
     "packages/backend",
-    "packages/frontend"
+    "packages/frontend",
+    "packages/worker"
   ],
   "scripts": {
     "lint": "pnpm -r lint",
