@@ -157,11 +157,18 @@ ingestion → infra/cost). Each maps back to a plan in-scope item.
   - Acceptance: worker runs on a schedule locally and has deploy config; does
     not run on the always-on Web App plan.
   - Touches: `packages`, `infra`
-- [ ] Implement a normalizer mapping provider fields → the `Festival` model with
+  - Partly done in PR #19 — `packages/worker` scaffolded with a runnable CLI
+    (one-shot, plus cron-scheduled local runs via `INGEST_SCHEDULE`/node-cron).
+    Remaining: Azure consumption deploy config (Terraform) — follow-on PR.
+- [x] Implement a normalizer mapping provider fields → the `Festival` model with
       source attribution, upserting into Cosmos
   - Acceptance: given sample provider data, produces valid `Festival` documents
     with `sources[]` populated.
   - Touches: `packages` (worker)
+  - Done in PR #19 — pure `normalizeFestival` (GeoJSON, date-only coercion,
+    validation, `sources[]`) + `bulkWrite` upsert deduped by `sourceUrl`, and a
+    `runIngestion` pipeline with per-source failure isolation. Verified with
+    26 unit + 13 integration checks against an ephemeral MongoDB.
 - [ ] Implement the first Playwright scraper (goandance.com) as the pattern;
       stub/follow-on for billetweb.fr and lasalsadelbaile.com (Q9)
   - Acceptance: goandance scraper extracts listings and feeds the normalizer;
