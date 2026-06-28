@@ -45,21 +45,27 @@ ingestion → infra/cost). Each maps back to a plan in-scope item.
 
 ## 2. Backend REST API
 
-- [ ] Implement `GET /api/festivals` with query params `lat,lng,radius,style,
+- [x] Implement `GET /api/festivals` with query params `lat,lng,radius,style,
       from,to,artist,format,upcomingOnly` (default upcomingOnly=true),
       proximity-sorted via `$near`/`2dsphere`
   - Acceptance: returns DB-backed, proximity-sorted, filtered results;
     upcoming-only by default; documented query params.
   - Touches: `packages/backend/src/index.ts`
-- [ ] Implement `GET /api/festivals/:id` detail payload (multilingual
+  - Done in PR #18 — pure `festivalQuery.ts` builder (CSV styles, date-window
+    overlap, case-insensitive artist, format validation, geo `$near` with
+    km→m radius, limit clamping, 400 on bad params). Verified with 17 unit +
+    16 live HTTP checks.
+- [x] Implement `GET /api/festivals/:id` detail payload (multilingual
       descriptions, full lineup, all links)
   - Acceptance: returns a single festival with full detail or 404.
+  - Done in PR #18 — ObjectId-or-string lookup; 404 when absent.
 - [ ] Implement `GET /api/artists?q=` typeahead for the DJ/artist filter
   - Acceptance: prefix query returns matching normalized artist names.
-- [ ] Add `Cache-Control` headers on public GET endpoints for CDN/edge caching
+- [x] Add `Cache-Control` headers on public GET endpoints for CDN/edge caching
   - Acceptance: public GET responses carry cache headers enabling edge caching
     (Q4 layer 2).
   - Touches: `packages/backend/src/index.ts`
+  - Done in PR #18 — `public, max-age=300, s-maxage=600` on both festival GETs.
 - [ ] Wire Key Vault references into Web App app settings for backend secrets
   - Acceptance: Cosmos connection string + Facebook secret resolve from Key
     Vault at runtime; none committed to the repo.

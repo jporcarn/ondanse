@@ -1,4 +1,4 @@
-import { MongoClient, type Db, type Collection } from 'mongodb';
+import { MongoClient, type Db, type Collection, type ObjectId } from 'mongodb';
 import type { Festival } from '@ondanse/shared';
 
 /**
@@ -21,7 +21,7 @@ const dbName = process.env.MONGODB_DB ?? 'ondanse';
  * A festival as stored in Mongo: the domain `id` is Mongo's `_id`. Everything
  * else mirrors the shared {@link Festival} type.
  */
-export type FestivalDoc = Omit<Festival, 'id'> & { _id: unknown };
+export type FestivalDoc = Omit<Festival, 'id'> & { _id: ObjectId };
 
 let client: MongoClient | null = null;
 let db: Db | null = null;
