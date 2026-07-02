@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node dist/cli.js",
+    "moderate": "node dist/moderate.js",
     "dev": "ts-node-dev --respawn --transpile-only src/cli.ts",
     "test": "echo \"No worker tests yet\"",
     "lint": "echo \"No worker lint configured yet\""
