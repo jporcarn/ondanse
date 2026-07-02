@@ -212,10 +212,14 @@ ingestion → infra/cost). Each maps back to a plan in-scope item.
     pages only) and its event pages expose no coordinates (only a free-text
     address), which the geo model requires. Treated as a booking-link target;
     revisiting would need a supplied URL list + a geocoding step.
-- [ ] Document the manual-review flow for the `pending-review` queue (Q11, Q6)
+- [x] Document the manual-review flow for the `pending-review` queue (Q11, Q6)
   - Acceptance: short doc/script notes explaining how to list `pending-review`
     festivals and approve/reject them via direct Cosmos access (no admin UI).
   - Touches: `docs/`, `packages` (worker, optional helper script)
+  - Done in PR #25 — `moderate` CLI (`list [status]` / `approve <id>…` /
+    `reject <id>…`) in the worker + `docs/moderation-review.md` (helper usage,
+    equivalent mongosh/Data-Explorer commands, keyword-map tuning). Verified
+    with 8 integration checks against an ephemeral MongoDB + CLI smoke.
 - [ ] Implement Facebook Events Graph API ingestion (API-first source) (Q9)
   - Acceptance: permitted events are pulled via Graph API and normalized.
   - Touches: `packages` (worker)
