@@ -36,6 +36,9 @@ jobs:
           mkdir -p deploy
           cp -r packages/backend/dist deploy/dist
           cp packages/backend/package.json deploy/package.json
+          # @ondanse/shared is a type-only dependency (erased at compile time);
+          # npm cannot resolve the pnpm workspace: protocol, so drop it.
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('deploy/package.json','utf8'));delete p.dependencies['@ondanse/shared'];fs.writeFileSync('deploy/package.json',JSON.stringify(p,null,2)+'\n');"
           (cd deploy && npm install --omit=dev --no-package-lock)
           (cd deploy && zip -r ../backend.zip .)
       - name: Login to Azure
