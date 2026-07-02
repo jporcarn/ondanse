@@ -202,8 +202,16 @@ ingestion → infra/cost). Each maps back to a plan in-scope item.
     Playwright fetcher (rel="next" pagination, GOANDANCE_STYLES config).
     Verified with 23 fixture checks against real HTML **and a live Playwright
     run**: 18 scraped → 8 approved, 10 pending-review (the bachata/salsa/latin
-    pollution correctly held back). billetweb.fr + lasalsadelbaile.com remain
-    follow-on.
+    pollution correctly held back).
+  - Follow-on **lasalsadelbaile.com** done in PR #24 — dance-specific listing
+    with Event JSON-LD incl. GeoCoordinates; single listing fetch, styles
+    inferred via `detectStyles`, trusted → approved. Shared scraper utils
+    extracted (`PageFetcher` → types, `jsonLd.ts`). Verified with 18 fixture
+    checks + a live run (9 festivals). **billetweb.fr** deferred for the MVP
+    (decided): it has no public event catalog to discover from (organizer-hosted
+    pages only) and its event pages expose no coordinates (only a free-text
+    address), which the geo model requires. Treated as a booking-link target;
+    revisiting would need a supplied URL list + a geocoding step.
 - [ ] Document the manual-review flow for the `pending-review` queue (Q11, Q6)
   - Acceptance: short doc/script notes explaining how to list `pending-review`
     festivals and approve/reject them via direct Cosmos access (no admin UI).

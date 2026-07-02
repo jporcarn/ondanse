@@ -1,5 +1,5 @@
 import { chromium, type Browser } from 'playwright';
-import type { PageFetcher } from './sources/goandance';
+import type { PageFetcher } from './types';
 
 /**
  * A Playwright-backed page fetcher: launches a headless Chromium, returns the
