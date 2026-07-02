@@ -73,17 +73,25 @@ ingestion → infra/cost). Each maps back to a plan in-scope item.
 
 ## 3. Frontend discovery (public, login-free)
 
-- [ ] Implement geolocation permission flow with no-location fallback
+- [x] Implement geolocation permission flow with no-location fallback
       (region/manual picker)
   - Acceptance: on grant, location feeds the list/map; on deny/unavailable,
     discovery still works via fallback.
   - Touches: `packages/frontend/src`
-- [ ] Implement proximity-ordered list view with festival cards showing name,
+  - Done in PR #26 — `useGeolocation` hook (explicit prompt before requesting,
+    granted/denied/manual states, reset) + `LocationPicker` fallback (city
+    presets + "Anywhere"). E2E-verified with Playwright: granted, skipped, and
+    denied→picker scenarios all work.
+- [x] Implement proximity-ordered list view with festival cards showing name,
       dates, city/country, distance, format flag, style tags, lineup highlight,
       and source/Facebook/booking links (Q1)
   - Acceptance: cards render all Q1 fields from the API; default sort is by
     distance.
   - Touches: `packages/frontend/src/App.tsx`
+  - Done in PR #26 — `FestivalCard` renders every Q1 field (distance computed
+    client-side via haversine from the festival's GeoJSON point; date-only
+    formatting without TZ shift); list is API proximity-sorted with lat/lng,
+    soonest-first without. 15 E2E checks pass against a seeded backend.
 - [ ] Implement map view with Leaflet + marker clustering (numbered bubbles that
       split on zoom) and selectable browse radius/area (Q10)
   - Acceptance: nearby pins cluster and de-cluster on zoom; map queries the API

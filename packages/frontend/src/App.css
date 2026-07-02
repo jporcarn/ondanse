@@ -1,0 +1,194 @@
+:root {
+  --ink: #1f2430;
+  --ink-soft: #5c6470;
+  --line: #e3e6eb;
+  --accent: #7c3aed;
+  --accent-soft: #f3eefe;
+  --bg: #fafbfc;
+  --card: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+}
+
+.app {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 3rem;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
+}
+
+.app-header p {
+  margin: 0.25rem 0 1.25rem;
+  color: var(--ink-soft);
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.panel > p {
+  margin: 0;
+  flex-basis: 100%;
+}
+
+button {
+  font: inherit;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(1.08);
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+button.link {
+  background: none;
+  color: var(--accent);
+  padding: 0;
+  text-decoration: underline;
+}
+
+.location-picker {
+  flex-basis: 100%;
+}
+
+.location-picker p {
+  margin: 0 0 0.5rem;
+  color: var(--ink-soft);
+}
+
+.location-picker-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.browse-context {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  margin: 1rem 0;
+}
+
+.status {
+  color: var(--ink-soft);
+  margin: 1.5rem 0;
+}
+
+.status.error {
+  color: #b3261e;
+}
+
+.festival-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.festival-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+}
+
+.festival-card header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.festival-card h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.festival-meta {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.festival-distance {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.1rem 0.6rem;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.badge-format {
+  background: #fff6e6;
+  border: 1px solid #f0dcb0;
+}
+
+.badge-style {
+  background: var(--accent-soft);
+  color: var(--accent);
+  margin-right: 0.35rem;
+}
+
+.festival-styles {
+  margin: 0.6rem 0 0;
+}
+
+.festival-lineup {
+  margin: 0.5rem 0 0;
+  font-size: 0.92rem;
+}
+
+.lineup-more {
+  color: var(--ink-soft);
+}
+
+.festival-links {
+  margin: 0.75rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.festival-links a {
+  color: var(--accent);
+}
