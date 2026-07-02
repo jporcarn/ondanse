@@ -39,6 +39,12 @@ export interface ScrapedFestival {
 }
 
 /**
+ * Fetches the (fully-rendered) HTML for a URL. Production uses a Playwright-backed
+ * implementation; tests inject a fixture-backed one. Shared by all scrapers.
+ */
+export type PageFetcher = (url: string) => Promise<string>;
+
+/**
  * A single ingestion source. Each scraper (Playwright) or API client (Facebook
  * Graph) implements this so the pipeline can run them uniformly and isolate
  * per-source failures.

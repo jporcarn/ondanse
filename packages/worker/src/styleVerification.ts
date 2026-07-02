@@ -90,3 +90,16 @@ export function verifyStyle(input: StyleVerificationInput): StyleVerificationRes
     reason: `No ${input.requestedStyle} keywords found in title/description/tags — needs manual review`,
   };
 }
+
+/**
+ * Detect which known styles appear in free text (by keyword match). Used by
+ * sources that aren't queried per-style (e.g. a dance-specific listing) to tag a
+ * festival's styles from its name/description. Returns the matching STYLE_KEYWORDS
+ * keys, e.g. ["kizomba", "bachata"].
+ */
+export function detectStyles(text: string): string[] {
+  const haystack = normalize(text);
+  return Object.entries(STYLE_KEYWORDS)
+    .filter(([, keywords]) => keywords.some((keyword) => haystack.includes(keyword)))
+    .map(([style]) => style);
+}
